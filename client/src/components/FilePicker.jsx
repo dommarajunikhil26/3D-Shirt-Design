@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import CustomButton from "./CustomButton"
 
 const FilePicker = ({ file, setFile, readFile }) => {
@@ -17,7 +18,7 @@ const FilePicker = ({ file, setFile, readFile }) => {
                     {file === '' ? "No file selected" : file.name}
                 </p>
             </div>
-            <div className="mt-4 flex flex-wrap gap-36">
+            <div className="mt-4 flex flex-wrap gap-3">
                 <CustomButton
                     type="outline"
                     title="logo"
@@ -27,7 +28,7 @@ const FilePicker = ({ file, setFile, readFile }) => {
                 <CustomButton
                     type="filled"
                     title="Full"
-                    handleClick={() => readFile('Full')}
+                    handleClick={() => readFile('full')}
                     customStyles="text-xs"
                 />
             </div>

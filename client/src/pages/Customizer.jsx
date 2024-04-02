@@ -19,7 +19,7 @@ const Customizer = () => {
     const [generatingImg, setGeneratingImg] = useState(false);
 
     const [activeEditorTab, setActiveEditorTab] = useState("");
-    const [activeFilterTab, setActiveFileterTab] = useState({
+    const [activeFilterTab, setActiveFilterTab] = useState({
         logoShirt: true,
         stylishShirt: false,
     });
@@ -35,9 +35,41 @@ const Customizer = () => {
                     readFile={readFile}
                 />
             case "aipicker":
-                return <AIPicker />
+                return <AIPicker
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    generatingImg={generatingImg}
+                    handleSubmit={handleSubmit}
+                />
             default:
                 return null;
+        }
+    }
+
+    const handleSubmit = async (type) => {
+        if (!prompt) return alert("Please enter a prompt");
+
+        try {
+            setGeneratingImg(true);
+
+            const response = await fetch('http://localhost:8080/api/v1/dalle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt,
+                })
+            })
+
+            const data = await response.json();
+
+            handleDecals(type, `data:image/png;base64,${data.photo}`)
+        } catch (error) {
+            alert(error)
+        } finally {
+            setGeneratingImg(false);
+            setActiveEditorTab("");
         }
     }
 
@@ -45,7 +77,7 @@ const Customizer = () => {
         const decalType = DecalTypes[type];
         state[decalType.stateProperty] = result;
 
-        if (!activeFilterTab[decalType.FilterTab]) {
+        if (!activeFilterTab[decalType.filterTab]) {
             handleActiveFilterTab(decalType.filterTab)
         }
     }
@@ -61,8 +93,16 @@ const Customizer = () => {
             default:
                 state.isLogoTexture = true;
                 state.isFullTexture = false;
-
+                break;
         }
+        // after setting the state, activeFilterTab is updated
+
+        setActiveFilterTab((prevState) => {
+            return {
+                ...prevState,
+                [tabName]: !prevState[tabName]
+            }
+        })
     }
 
     const readFile = (type) => {
@@ -115,8 +155,8 @@ const Customizer = () => {
                                 key={tab.name}
                                 tab={tab}
                                 isFilterTab
-                                isActiveTab=""
-                                handleClick={() => { }}
+                                isActiveTab={activeFilterTab[tab.name]}
+                                handleClick={() => handleActiveFilterTab(tab.Name)}
                             />
                         ))}
                     </motion.div>
